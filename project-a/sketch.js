@@ -19,8 +19,8 @@ let tearX = 0;
 let tearY = 160;
 let tearSpeed = 0.9;
 let tearDiameter = 20;
+let gridSize = 10;
 function setup() {
-    //-_-
     let canvas = createCanvas(800, 500);
     canvas.parent("p5-canvas-container");
     x = width / 2;
@@ -30,7 +30,64 @@ function setup() {
 }
 
 function draw() {
-    background(0);
+    background(20, 20, 20);
+    if (mode == 0) {
+        for (let y = 0; y < height; y += gridSize) {
+            for (let x = 0; x < width; x += gridSize) {
+                let r = map(x, 0, width, 0, 60);
+                let g = map(x, 0, width, 0, 30);
+                let b = map(y, 0, height, 255, 200);
+                noStroke();
+                fill(r, g, b, 100);
+                rect(x, y, gridSize, gridSize);
+            }
+        }
+    } else if (mode == 1) {
+        for (let y = 0; y < height; y += gridSize) {
+            for (let x = 0; x < width; x += gridSize) {
+                let r = map(x, 0, width, 255, 255);
+                let g = map(y, 0, height, 150, 255);
+                let b = map(x + y, 0, width + height, 100, 200);
+                noStroke();
+                fill(r, g, b, 200);
+                rect(x, y, gridSize, gridSize);
+            }
+        }
+    } else if (mode == 2) {
+        for (let y = 0; y < height; y += gridSize) {
+            for (let x = 0; x < width; x += gridSize) {
+                let r = map(x, 0, width, 255, 255);
+                let g = 0;
+                let b = map(y, 0, height, 0, 50);
+                noStroke();
+                fill(r, g, b, 50);
+                rect(x, y, gridSize, gridSize);
+            }
+        }
+    } else if (mode == 3) {
+        for (let y = 0; y < height; y += gridSize) {
+            for (let x = 0; x < width; x += gridSize) {
+                let r = map(x, 0, width, 50, 130);
+                let g = 0;
+                let b = map(y, 0, height, 255, 180);
+                noStroke();
+                fill(r, g, b, 60);
+                rect(x, y, gridSize, gridSize);
+            }
+        }
+    } else if (mode == 4) {
+        for (let y = 0; y < height; y += gridSize) {
+            for (let x = 0; x < width; x += gridSize) {
+                let r = map(x, 0, width, 50, 100);
+                let g = map(y, 0, height, 50, 100);
+                let b = map(x + y, 0, width + height, 100, 200);
+                noStroke();
+                fill(r, g, b, 80);
+                rect(x, y, gridSize, gridSize);
+            }
+        }
+    }
+
     if (mouseIsPressed) {
         x = lerp(x, mouseX, 0.02);
         y = lerp(y, mouseY, 0.02);
@@ -57,6 +114,30 @@ function draw() {
         }
     }
     drawCreature(x, y);
+}
+
+function updateSpeed() {
+    if (mode == 0) {
+
+        xSpeed = random(-1, 1);
+        ySpeed = random(-1, 1);
+    } else if (mode == 1) {
+
+        xSpeed = random(-5, 5);
+        ySpeed = random(-5, 5);
+    } else if (mode == 2) {
+
+        xSpeed = random(-7, 7);
+        ySpeed = random(-7, 7);
+    } else if (mode == 3) {
+
+        xSpeed = random(-1.5, 1.5);
+        ySpeed = random(-1.5, 1.5);
+    } else if (mode == 4) {
+
+        xSpeed = random(-0.5, 0.5);
+        ySpeed = random(-0.5, 0.5);
+    }
 }
 
 function drawCreature(x, y) {
@@ -114,7 +195,7 @@ function drawCreature(x, y) {
         drawIrisReal();
         drawBloodvessels();
         drawIrisBright();
-        drawIrisNoiseLine()
+        drawIrisNoiseLine();
         ellipselength = 80;
         ellipsewidth = map(sin(frameCount * 0.07), -1, 1, 13, 20);
     } else if (mode == 3) {
@@ -174,10 +255,6 @@ function drawIris01(spd) {
 
         stroke(r, g, b, 200);
         strokeWeight(1.5);
-        //noStroke();
-        //fill(r, g, b, 100);
-        //ellipse(90, 0, ellipselength - 20, ellipsewidth);
-
         ellipse(60, 0, ellipselength, ellipsewidth);
         pop();
     }
@@ -259,7 +336,7 @@ function drawIrisCalmBut(spd) {
         let x = cos(radians(deg)) * radDist;
         let y = sin(radians(deg)) * radDist;
         stroke(70, 80, 150, 150);
-        let amount = map(mouseX, 0, width, 0, 10, true);
+        let amount = map(mouseX, 0, width, 0, 30, true);
         line(x, y, random(-amount, amount), random(-amount, amount));
     }
     pop();
@@ -388,4 +465,5 @@ function mouseReleased() {
     if (mode == 5) {
         mode = 0;
     }
+    updateSpeed();
 }
