@@ -20,6 +20,7 @@ let tearY = 160;
 let tearSpeed = 0.9;
 let tearDiameter = 20;
 function setup() {
+    //-_-
     let canvas = createCanvas(800, 500);
     canvas.parent("p5-canvas-container");
     x = width / 2;
