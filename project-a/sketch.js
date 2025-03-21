@@ -458,6 +458,7 @@ function keyPressed() {
         mode--;
     }
     mode = constrain(mode, 0, 4);
+    updateSpeed();
 }
 
 function mouseReleased() {
