@@ -52,7 +52,7 @@ class HermioneDancer {
 
     if (this.moveTimer > 120) {
       this.moveTimer = 0;
-      var randomIndex = floor(random(0, this.possibleMoves.length)); //I used deepseek for help here because I am not familiar with randomIndex in arrays
+      let randomIndex = floor(random(0, this.possibleMoves.length));
       this.currentMove = this.possibleMoves[randomIndex];
     }
 
