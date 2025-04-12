@@ -83,7 +83,7 @@ class FlameParticle {
     }
   }
   slowDown() {
-    this.xSpeed *= 0.97; // -5%
+    this.xSpeed *= 0.97;
     this.ySpeed *= 0.99;
   }
   display() {
