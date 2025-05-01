@@ -133,7 +133,7 @@ class Button {
     rectMode(CENTER);
     fill(255, 255, 255, 200);
     stroke(200);
-    strokeWeight(1.5);
+    strokeWeight(3);
     rect(this.x, this.y, this.w, this.h, 10);
     translate()
 
