@@ -1,10 +1,29 @@
+/*
+mode:
+
+0: ready or front page
+1：Emotion Cards
+2：Level Cards
+3: Polarity Cards
+4：Show Selected Card
+5: ending?
+6: something else?
+
+*/
+
+let mode = 1; //needs to be changed later
 let img;
-let EmotionCards = [];
-let numCards = 6;
+let Cards = [];
 let radius = 150;
 let centerX, centerY;
 let button;
-let showbutton = false;
+let currentType = "emotion"
+let numCardsByType = {
+  emotion: 6,
+  level: 3,
+  polarity: 2
+};//Is this OK to use?(AI assistance)
+
 
 function preload() {
   img = loadImage("assets/milkyway.jpg");
@@ -17,38 +36,77 @@ function setup() {
   centerY = height / 2;
   button = new Button(width - 100, height - 60, 80, 40, "See Next");
 
-  for (let i = 0; i < numCards; i++) {
-    let angle = TWO_PI / numCards * i;
-    EmotionCards[i] = new EmotionCard(centerX, centerY, radius, angle);
-  }
 }
 
 function draw() {
   background(30);
 
+  // draw the bg image
   tint(255, 255);
   image(img, 0, 0, width, height);
 
-
-  for (let i = 0; i < EmotionCards.length; i++) {
-    let ec = EmotionCards[i];
-    ec.update();
-    ec.display();
-    if (ec.isSelected) {
-      showbutton = true;
-    }
+  // update the card scenes
+  if (mode == 0) {
+    //showIntro();
+  } else if (mode == 1) {
+    currentType = "emotion"
+    showCards(currentType);
+  } else if (mode == 2) {
+    currentType = "level"
+    showCards(currentType);
+  } else if (mode == 3) {
+    currentType = "polarity"
+    showCards(currentType);
+  } else if (mode == 4) {
 
   }
-  if (showbutton) {
-    button.display();
-  }
+
+
+  push();
+  fill(255);
+  text(mode, 10, 20);
+  pop();
 }
 
 
+function mousePressed() {
+  button.checkClick();
+
+}
 
 
-class EmotionCard {
-  constructor(centerX, centerY, r, angle) {
+function showCards(type) {
+  if (Cards.length === 0) {
+    Cards = createCardsByType(type);
+  }
+
+  for (let c of Cards) {
+    c.update();
+    c.display();
+  }
+
+  button.checkHover();
+  button.display();
+}
+
+function createCardsByType(type) {
+  let newCards = [];
+  let num = numCardsByType[type];
+  for (let i = 0; i < num; i++) {
+    let angle = TWO_PI / num * i;
+    let c = new Card(centerX, centerY, 150, angle, type);
+    newCards.push(c);
+  }
+  return newCards;
+}
+
+
+class Card {
+  constructor(centerX, centerY, r, angle, type) {
+    this.state = "";
+    this.type = type; //Emotion, Level, Polarity
+    this.isHover = false;
+    //
     this.centerX = centerX;
     this.centerY = centerY;
     this.radius = r;
@@ -57,9 +115,10 @@ class EmotionCard {
     this.baseAngle = angle;
     this.x = this.centerX + this.radius * cos(this.baseAngle);
     this.y = this.centerY + this.radius * sin(this.baseAngle);
-    this.color = color(200, 220, 255, 240);
+    this.color = this.getColorByType();
     this.isSelected = false;
     this.scl = 0.20;
+    this.rotationSpeed = 0.005
     //
     this.selectedX = width / 2;
     this.selectedY = height / 2;
@@ -71,24 +130,40 @@ class EmotionCard {
   }
 
 
+  getColorByType() {
+    if (this.type === "emotion") {
+      return color(200, 220, 255, 240);
+    } else if (this.type === "level") {
+      return color(255, 200, 220, 240);
+    } else if (this.type === "polarity") {
+      return color(200, 255, 200, 240);
+    } else {
+
+    }
+  }//well I let AI assist me here
+
   update() {
     this.checkHover();
 
-    if (this.isSelected) {
+    if (this.state == "selected") {
       this.x = lerp(this.x, width / 2, 0.03);
       this.y = lerp(this.y, height / 2, 0.03);
       this.scl = lerp(this.scl, 1.00, 0.03);
     } else {
+      this.baseAngle += this.rotationSpeed;
+      this.x = this.centerX + this.radius * cos(this.baseAngle);
+      this.y = this.centerY + this.radius * sin(this.baseAngle);
       //
     }
   }
+
 
   display() {
     push();
     translate(this.x, this.y);
     scale(this.scl);
 
-    if (this.isHovered) {
+    if (this.isHover) {
       blendMode(ADD);
       stroke(255, 215, 0);
       strokeWeight(3);
@@ -106,13 +181,16 @@ class EmotionCard {
 
   checkHover() {
     let distance = dist(mouseX, mouseY, this.x, this.y);
-    if (distance < this.dia / 2) {
-      this.isHovered = true;
+    if (distance < this.dia / 2 && this.state != "selected") {
+      //this.state = "hover";
+      this.isHover = true;
       if (mouseIsPressed) {
-        this.isSelected = true;
+        this.state = "selected";
+        button.isShown = true;
       }
     } else {
-      this.isHovered = false;
+      //this.state = "";
+      this.isHover = false;
     }
   }
 }
@@ -124,14 +202,42 @@ class Button {
     this.w = w;
     this.h = h;
     this.text = labeltext
-
+    this.isHover = false;
+    this.isShown = false;
   }
-
-
+  checkClick() {
+    if (mouseX > this.x - this.w / 2 && mouseX < this.x + this.w / 2
+      && mouseY > this.y - this.h / 2 && mouseY < this.y + this.h / 2) {
+      // in
+      mode++;
+      this.isShown = false;
+      Cards = [];
+    } else {
+      // out
+    }
+  }
+  checkHover() {
+    if (this.isShown) {
+      if (mouseX > this.x - this.w / 2 && mouseX < this.x + this.w / 2
+        && mouseY > this.y - this.h / 2 && mouseY < this.y + this.h / 2) {
+        // in
+        this.isHover = true;
+      } else {
+        // out
+        this.isHover = false;
+      }
+    }
+  }
   display() {
+    if (this.isShown == false) return;
+
     push();
     rectMode(CENTER);
     fill(255, 255, 255, 200);
+    if (this.isHover) {
+      blendMode(ADD);
+      fill(192, 192, 192);
+    }
     stroke(200);
     strokeWeight(3);
     rect(this.x, this.y, this.w, this.h, 10);
