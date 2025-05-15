@@ -17,7 +17,10 @@ let selectedPolarity = -1;
 
 let mode = 1; //needs to be changed later
 let img;
+let img1;
+let img2;
 let font1;
+let font2;
 let cards = [];
 let radius = 150;
 let centerX, centerY;
@@ -40,9 +43,15 @@ let cardsEmotion = [];
 let cardsLevel = [];
 let cardsPolarity = [];
 
+let fadeAlpha = 0;
+let fadeSpeed = 0.01;
+
 function preload() {
   img = loadImage("assets/milkyway.jpg");
+  img1 = loadImage("assets/lab.jpg");
+  img2 = loadImage("assets/scientist.png");
   font1 = loadFont("assets/CinzelDecorative-Regular.ttf");
+  font2 = loadFont("assets/PressStart2P-Regular.ttf");
   for (let i = 0; i < numCardsByType.emotion; i++) {
     emotionImgs.push(loadImage('assets/emotionImg' + (i + 1) + '.jpg'));
   }
@@ -104,50 +113,88 @@ function draw() {
 
   // update the card scenes
   if (mode == 0) {
-    //showIntro();
+    image(img1, 0, 0, width, height);
+    fill(0, 255, 180, 50)
+    rect(110, 120, 550, 300);
+    image(img2, 520, 120, 260, 390);
+    text('Resonant Arcana', 400, 90);
+    fill(255);
+    textAlign(CENTER);
+    textSize(40);
+    textFont(font2);
+    stroke(0, 255, 180);
+    strokeWeight(2);
+
+
+
+
   } else if (mode == 1) {
+    fill(255)
+    text("Emotion", 20, 50)
+    textSize(30);
+    textFont(font1);
     for (let i = 0; i < cardsEmotion.length; i++) {
       let card = cardsEmotion[i];
       card.update();
       card.display();
     }
   } else if (mode == 2) {
+    fill(255)
+    text("Level", 20, 50)
+    textSize(30);
+    textFont(font1);
     for (let i = 0; i < cardsLevel.length; i++) {
       let card = cardsLevel[i];
       card.update();
       card.display();
     }
   } else if (mode == 3) {
+    fill(255)
+    text("Polarity", 20, 50)
+    textSize(30);
+    textFont(font1);
     for (let i = 0; i < cardsPolarity.length; i++) {
       let card = cardsPolarity[i];
       card.update();
       card.display();
     }
   } else if (mode == 4) {
-    // if (selectedEmotion !== -1) {
-    //   displaySelectedCard(cardsEmotion[selectedEmotion], width / 4, height / 2);
-    // }
-    // if (selectedLevel !== -1) {
-    //   displaySelectedCard(cardsLevel[selectedLevel], width / 2, height / 2);
-    // }
-    // if (selectedPolarity !== -1) {
-    //   displaySelectedCard(cardsPolarity[selectedPolarity], (3 * width) / 4, height / 2);
-    // }
+    if (selectedEmotion !== -1) {
+      displaySelectedCard(cardsEmotion[selectedEmotion], width / 4, height / 2);
+    }
+    if (selectedLevel !== -1) {
+      displaySelectedCard(cardsLevel[selectedLevel], width / 2, height / 2);
+    }
+    if (selectedPolarity !== -1) {
+      displaySelectedCard(cardsPolarity[selectedPolarity], (3 * width) / 4, height / 2);
+    }
   }
 
+  button.checkHover();
+  button.display();
+
+
+
 }
-button.checkHover();
-button.display();
 
+function displaySelectedCard(card, x, y) {
+  push();
+  imageMode(CENTER);
 
-push();
-fill(255);
-text(mode, 10, 20);
-text(selectedEmotion, 10, 40);
-text(selectedLevel, 10, 60);
-text(selectedPolarity, 10, 80);
-pop();
+  if (fadeAlpha < 255) {
+    fadeAlpha = lerp(fadeAlpha, 255, fadeSpeed);
+  }
 
+  tint(255, fadeAlpha);
+  image(card.img, x, y - 50, 130, 260);
+
+  for (let i = 0; i < card.suggestedBehaviors.length; i++) {
+    fill(255);
+    text(card.suggestedBehaviors[i], x - 40, y + 90);
+  }
+
+  pop();
+}
 
 
 function mousePressed() {
@@ -180,8 +227,35 @@ class Card {
 
     this.img = img;
     this.imgShow = false;
-
+    this.suggestedBehaviors = [];
+    if (this.type === "emotion") {
+      if (this.id === 0) this.suggestedBehaviors = ["Dance to your favorite song.", "Share a joke with a friend.", "Recall your happiest memory."];
+      else if (this.id === 1) this.suggestedBehaviors = ["Listen to a nostalgic song.", "Write about a time you felt lost.", "Sit quietly and embrace the feeling."];
+      else if (this.id === 2) this.suggestedBehaviors = ["Scream into a pillow.", "Scribble on paper fiercely.", "Punch a cushion."];
+      else if (this.id === 3) this.suggestedBehaviors = ["Walk through a dark room slowly.", "Stand at a high place and look down.", "Imagine stepping into the unknown."];
+      else if (this.id === 4) this.suggestedBehaviors = ["Smell something pungent.", "Look closely at something messy.", "Taste something bitter."];
+      else if (this.id === 5) this.suggestedBehaviors = ["Embrace the unknown.", "Observe your reactions.", "Stay open to new possibilities."];
+    } else if (this.type === "level") {
+      if (this.id === 0) {
+        this.suggestedBehaviors = [
+          "Reflect and ", "acknowledge it calmly."
+        ];
+      } else if (this.id === 1) {
+        this.suggestedBehaviors = [
+          "Express through ", "talking or creative outlets."
+        ];
+      } else if (this.id === 2) {
+        this.suggestedBehaviors = [
+          "Release safely,", "then breathe and process."
+        ];
+      }
+    } else if (this.type === "polarity") {
+      if (this.id === 0) this.suggestedBehaviors = ["Embrace stability and growth;", "focus on actions that", "reinforce positivity."];
+      else if (this.id === 1) this.suggestedBehaviors = ["Acknowledge and ", "let out the chaos,", "but aim to regain control and clarity."];
+    }
   }
+
+
 
 
   getColorByType() {
@@ -194,7 +268,8 @@ class Card {
     } else {
 
     }
-  }//well I let AI assist me here
+  }
+  //well I let AI assist me here
 
   update() {
     this.checkHover();
@@ -278,6 +353,7 @@ class Card {
   }
 }
 
+
 class Button {
   constructor(x, y, w, h, labeltext) {
     this.x = x;
@@ -297,7 +373,7 @@ class Button {
       mode++;
       selectNum = 0;
       this.isShown = false;
-      cards = [];
+      //cards = [];
     } else {
       // out
 
